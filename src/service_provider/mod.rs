@@ -312,7 +312,7 @@ impl ServiceProvider {
         &self,
         encoded_resp: &str,
         possible_request_ids: Option<&[&str]>,
-    ) -> Result<Assertion, Box<dyn std::error::Error>> {
+    ) -> Result<Assertion, Box<dyn std::error::Error + Send + Sync>> {
         let bytes = general_purpose::STANDARD.decode(encoded_resp)?;
         let decoded = std::str::from_utf8(&bytes)?;
         let assertion = self.parse_xml_response(decoded, possible_request_ids)?;
