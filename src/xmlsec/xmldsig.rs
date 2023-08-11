@@ -124,7 +124,7 @@ impl XmlSecSignatureContext {
         let root_ptr = root.node_ptr() as *mut bindings::xmlNode;
 
         if let Some(id_attr) = id_attr {
-            let cid =
+            let cid: std::ffi::CString =
                 std::ffi::CString::new(id_attr).map_err(|_| XmlSecError::InvalidInputString)?;
 
             unsafe {

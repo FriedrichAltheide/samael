@@ -415,18 +415,14 @@ pub(crate) fn reduce_xml_to_signed(
     {
         let mut signature_nodes = find_signature_nodes(&root_elem);
         for sig_node in signature_nodes.drain(..) {
-            let mut sig_ctx = XmlSecSignatureContext::new()?;
-            let mut verified = false;
+            let mut sig_ctx: XmlSecSignatureContext = XmlSecSignatureContext::new()?;
+            // load all allowed certs
             for openssl_key in certs {
                 let key_data = openssl_key.to_der()?;
                 let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
                 sig_ctx.insert_key(key);
-                verified = sig_ctx.verify_node(&sig_node)?;
-                if verified {
-                    break;
-                }
             }
-
+            let verified = sig_ctx.verify_node(&sig_node)?;
             if !verified {
                 return Err(Error::InvalidSignature);
             }

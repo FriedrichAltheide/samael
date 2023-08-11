@@ -325,8 +325,10 @@ impl ServiceProvider {
         possible_request_ids: Option<&[&str]>,
     ) -> Result<Assertion, Error> {
         let reduced_xml = if let Some(sign_certs) = self.idp_signing_certs()? {
-            reduce_xml_to_signed(response_xml, &sign_certs)
-                .map_err(|_e| Error::FailedToValidateSignature)?
+            reduce_xml_to_signed(response_xml, &sign_certs).map_err(|e| {
+                println!("Failed to validated: {}", e);
+                Error::FailedToValidateSignature
+            })?
         } else {
             String::from(response_xml)
         };
