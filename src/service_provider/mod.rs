@@ -1,7 +1,8 @@
-use crate::crypto;
+use crate::crypto::{self, decrypt_xml};
 use crate::metadata::{Endpoint, IndexedEndpoint, KeyDescriptor, NameIdFormat, SpSsoDescriptor};
 use crate::schema::{Assertion, Response};
 use crate::traits::ToXml;
+use crate::xmlsec::XmlSecDecryptContext;
 use crate::{
     key_info::{KeyInfo, X509Data},
     metadata::{ContactPerson, EncryptionMethod, EntityDescriptor, HTTP_POST_BINDING},
@@ -326,6 +327,11 @@ impl ServiceProvider {
         response_xml: &str,
         possible_request_ids: Option<&[&str]>,
     ) -> Result<Assertion, Error> {
+        // decrypt
+        if let Some(key) = self.key {
+            decrypt_xml(response_xml, &key);
+        }
+        
         let reduced_xml = if let Some(sign_certs) = self.idp_signing_certs()? {
             reduce_xml_to_signed(response_xml, &sign_certs).map_err(|e| {
                 println!("Failed to validated: {}", e);

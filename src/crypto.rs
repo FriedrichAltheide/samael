@@ -13,6 +13,8 @@ use libxml::parser::Parser as XmlParser;
 #[cfg(feature = "xmlsec")]
 const XMLNS_XML_DSIG: &str = "http://www.w3.org/2000/09/xmldsig#";
 #[cfg(feature = "xmlsec")]
+const XMLNS_XML_ENC: &str = "http://www.w3.org/2001/04/xmlenc#";
+#[cfg(feature = "xmlsec")]
 const XMLNS_SIGVER: &str = "urn:urn-5:08Z8lPlI4JVjifINTfCtfelirUo";
 #[cfg(feature = "xmlsec")]
 const ATTRIB_SIGVER: &str = "sv";
@@ -157,6 +159,24 @@ fn find_signature_nodes(node: &libxml::tree::Node) -> Vec<libxml::tree::Node> {
 
     for child in node.get_child_elements() {
         let mut children = find_signature_nodes(&child);
+        ret.append(&mut children);
+    }
+
+    ret
+}
+
+#[cfg(feature = "xmlsec")]
+fn find_encrypted_data(node: &libxml::tree::Node) -> Vec<libxml::tree::Node> {
+    let mut ret = Vec::new();
+
+    if let Some(ns) = &node.get_namespace() {
+        if ns.get_href() == XMLNS_XML_ENC && node.get_name() == "EncryptedData" {
+            ret.push(node.clone());
+        }
+    }
+
+    for child in node.get_child_elements() {
+        let mut children = find_encrypted_data(&child);
         ret.append(&mut children);
     }
 
@@ -395,6 +415,34 @@ fn remove_unverified_elements(node: &mut libxml::tree::Node) {
         // element is unverified; remove it
         node.unlink_node();
     }
+}
+
+#[cfg(feature = "xmlsec")]
+pub(crate) fn decrypt_xml(
+    xml_str: &str,
+    cert: &openssl::x509::X509,
+) -> Result<String, Error> {
+    use crate::xmlsec::XmlSecDecryptContext;
+
+    let mut xml = XmlParser::default().parse_string(xml_str)?;
+    let mut root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
+
+    let mut signature_nodes = find_signature_nodes(&root_elem);
+    for dec_node in signature_nodes.drain(..) {
+        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+        // load private key
+
+        let key_data = cert.to_der()?;
+        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
+        dec_ctx.insert_key(key);
+        
+
+        dec_ctx.decrypt_document(&dec_node);
+    }
+
+
+    let reduced_xml_str = xml.to_string();
+    Ok(reduced_xml_str)
 }
 
 /// Takes an XML document, parses it, verifies all XML digital signatures against the given
