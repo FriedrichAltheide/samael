@@ -418,31 +418,21 @@ fn remove_unverified_elements(node: &mut libxml::tree::Node) {
 }
 
 #[cfg(feature = "xmlsec")]
-pub(crate) fn decrypt_xml(
-    xml_str: &str,
-    cert: &openssl::x509::X509,
-) -> Result<String, Error> {
+pub(crate) fn decrypt_xml(xml_str: &str, cert: &[u8]) -> Result<String, Error> {
     use crate::xmlsec::XmlSecDecryptContext;
 
     let mut xml = XmlParser::default().parse_string(xml_str)?;
-    let mut root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
-    let mut signature_nodes = find_signature_nodes(&root_elem);
-    for dec_node in signature_nodes.drain(..) {
-        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
-        // load private key
+    let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+    // load private key
 
-        let key_data = cert.to_der()?;
-        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
-        dec_ctx.insert_key(key);
-        
+    let key_data = cert;
+    let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
+    dec_ctx.insert_key(key);
 
-        dec_ctx.decrypt_document(&dec_node);
-    }
+    dec_ctx.decrypt_document(&xml)?;
 
-
-    let reduced_xml_str = xml.to_string();
-    Ok(reduced_xml_str)
+    Ok(xml.to_string())
 }
 
 /// Takes an XML document, parses it, verifies all XML digital signatures against the given

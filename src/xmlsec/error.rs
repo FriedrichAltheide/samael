@@ -65,7 +65,7 @@ impl std::fmt::Display for XmlSecError {
                 write!(fmt, "An error has ocurred while attemting to sign document")
             }
             Self::VerifyError => write!(fmt, "Verification failed"),
-            Self::DecryptionFailed => write!("fmt", "Decryption failed"),
+            Self::DecryptionFailed => write!(fmt, "Decryption failed"),
         }
     }
 }

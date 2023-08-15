@@ -13,7 +13,7 @@ use std::ptr::{null, null_mut};
 
 /// Signature signing/veryfying context
 pub struct XmlSecDecryptContext {
-    ctx: *mut bindings::xmlSecEncCtxDecrypt,
+    ctx: *mut bindings::xmlSecEncCtx,
 }
 
 impl XmlSecDecryptContext {
@@ -21,7 +21,7 @@ impl XmlSecDecryptContext {
     pub fn new() -> XmlSecResult<Self> {
         super::xmlsec_internal::guarantee_xmlsec_init()?;
 
-        let ctx = unsafe { bindings::xmlSecEncCtxDecrypt(null_mut()) };
+        let ctx: *mut bindings::_xmlSecEncCtx = unsafe { bindings::xmlSecEncCtxCreate(null_mut()) };
 
         if ctx.is_null() {
             return Err(XmlSecError::ContextInitError);
@@ -36,11 +36,11 @@ impl XmlSecDecryptContext {
         let mut old = None;
 
         unsafe {
-            if !(*self.ctx).signKey.is_null() {
-                old = Some(XmlSecKey::from_ptr((*self.ctx).signKey));
+            if !(*self.ctx).encKey.is_null() {
+                old = Some(XmlSecKey::from_ptr((*self.ctx).encKey));
             }
 
-            (*self.ctx).signKey = XmlSecKey::leak(key);
+            (*self.ctx).encKey = XmlSecKey::leak(key);
         }
 
         old
@@ -50,12 +50,12 @@ impl XmlSecDecryptContext {
     #[allow(unused)]
     pub fn release_key(&mut self) -> Option<XmlSecKey> {
         unsafe {
-            if (*self.ctx).signKey.is_null() {
+            if (*self.ctx).encKey.is_null() {
                 None
             } else {
-                let key = XmlSecKey::from_ptr((*self.ctx).signKey);
+                let key = XmlSecKey::from_ptr((*self.ctx).encKey);
 
-                (*self.ctx).signKey = null_mut();
+                (*self.ctx).encKey = null_mut();
 
                 Some(key)
             }
@@ -65,7 +65,6 @@ impl XmlSecDecryptContext {
     pub fn decrypt_document(&self, doc: &XmlDocument) -> XmlSecResult<()> {
         self.key_is_set()?;
 
-        let doc_ptr = doc.doc_ptr();
         let root = if let Some(root) = doc.get_root_element() {
             root
         } else {
@@ -82,7 +81,7 @@ impl XmlSecDecryptContext {
 impl XmlSecDecryptContext {
     fn key_is_set(&self) -> XmlSecResult<()> {
         unsafe {
-            if !(*self.ctx).signKey.is_null() {
+            if !(*self.ctx).encKey.is_null() {
                 Ok(())
             } else {
                 Err(XmlSecError::KeyNotLoaded)

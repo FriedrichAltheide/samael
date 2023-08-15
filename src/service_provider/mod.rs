@@ -328,10 +328,6 @@ impl ServiceProvider {
         possible_request_ids: Option<&[&str]>,
     ) -> Result<Assertion, Error> {
         // decrypt
-        if let Some(key) = self.key {
-            decrypt_xml(response_xml, &key);
-        }
-        
         let reduced_xml = if let Some(sign_certs) = self.idp_signing_certs()? {
             reduce_xml_to_signed(response_xml, &sign_certs).map_err(|e| {
                 println!("Failed to validated: {}", e);
@@ -340,7 +336,14 @@ impl ServiceProvider {
         } else {
             String::from(response_xml)
         };
-        let response: Response = reduced_xml.parse().map_err(|e| {
+
+        let decrypted_xml = if let Some(key) = &self.key {
+            decrypt_xml(response_xml, &key.private_key_to_der().unwrap()).unwrap()
+        } else {
+            reduced_xml
+        };
+
+        let response: Response = decrypted_xml.parse().map_err(|e| {
             println!("Error while parsing saml response: {}", e);
             Error::FailedToParseSamlResponse
         })?;
