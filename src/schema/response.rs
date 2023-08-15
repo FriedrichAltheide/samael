@@ -50,6 +50,7 @@ impl FromStr for Response {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        println!("TODO {}", s);
         Ok(quick_xml::de::from_str(s)?)
     }
 }
