@@ -176,7 +176,7 @@ impl ServiceProvider {
                 },
             });
             key_descriptors.push(KeyDescriptor {
-                key_use: Some("signing".to_string()),
+                key_use: Some("encryption".to_string()),
                 key_info: KeyInfo {
                     id: None,
                     x509_data: Some(X509Data {
