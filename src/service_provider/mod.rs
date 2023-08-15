@@ -334,9 +334,10 @@ impl ServiceProvider {
         } else {
             String::from(response_xml)
         };
-        let response: Response = reduced_xml
-            .parse()
-            .map_err(|_e| Error::FailedToParseSamlResponse)?;
+        let response: Response = reduced_xml.parse().map_err(|e| {
+            println!("Error while parsing saml response: {}", e);
+            Error::FailedToParseSamlResponse
+        })?;
         self.validate_destination(&response)?;
         let mut request_id_valid = false;
         if self.allow_idp_initiated {
