@@ -418,21 +418,23 @@ fn remove_unverified_elements(node: &mut libxml::tree::Node) {
 }
 
 #[cfg(feature = "xmlsec")]
-pub(crate) fn decrypt_xml(xml_str: &str, private_key_der: &[u8]) -> Result<String, Error> {
+pub(crate) fn decrypt_xml(xml_str: &str, private_key_der: &[u8], pub_key_der: &[u8]) -> Result<String, Error> {
     use crate::xmlsec::XmlSecDecryptContext;
 
     let xml = XmlParser::default().parse_string(xml_str)?;
     let root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
-    for enc_assert in find_encrypted_data(&root_elem) {
-        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
-        // load private key
-        let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
-    
-        dec_ctx.insert_key(key);
-    
-        dec_ctx.decrypt_document(&enc_assert)?;
-    }
+    // for enc_assert in find_encrypted_data(&root_elem) {
+    let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+    // load private key
+    let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
+    let pub_key = XmlSecKey::from_memory(pub_key_der, XmlSecKeyFormat::CertDer)?;
+
+    dec_ctx.insert_key(key);
+    dec_ctx.insert_key(pub_key);
+
+    dec_ctx.decrypt_document(&root_elem)?;
+    //}
 
     Ok(xml.to_string())
 }

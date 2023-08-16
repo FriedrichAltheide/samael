@@ -336,8 +336,8 @@ impl ServiceProvider {
             String::from(response_xml)
         };
 
-        let decrypted_xml = if let Some(key) = &self.key {
-            decrypt_xml(response_xml, &key.private_key_to_der().unwrap()).unwrap()
+        let decrypted_xml = if let (Some(key), Some(pub_key)) = (&self.key, &self.certificate) {
+            decrypt_xml(response_xml, &key.private_key_to_der().unwrap(), &pub_key.to_der().unwrap()).unwrap()
         } else {
             reduced_xml
         };
