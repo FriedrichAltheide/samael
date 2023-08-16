@@ -170,7 +170,7 @@ fn find_encrypted_data(node: &libxml::tree::Node) -> Vec<libxml::tree::Node> {
     let mut ret = Vec::new();
 
     if let Some(ns) = &node.get_namespace() {
-        if ns.get_href() == XMLNS_XML_ENC && node.get_name() == "EncryptedData" {
+        if ns.get_href() == "urn:oasis:names:tc:SAML:2.0:assertion" && node.get_name() == "EncryptedAssertion" {
             ret.push(node.clone());
         }
     }
@@ -424,13 +424,15 @@ pub(crate) fn decrypt_xml(xml_str: &str, private_key_der: &[u8]) -> Result<Strin
     let xml = XmlParser::default().parse_string(xml_str)?;
     let root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
-    let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
-    // load private key
-    let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
-
-    dec_ctx.insert_key(key);
-
-    dec_ctx.decrypt_document(&root_elem)?;
+    for enc_assert in find_encrypted_data(&root_elem) {
+        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+        // load private key
+        let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
+    
+        dec_ctx.insert_key(key);
+    
+        dec_ctx.decrypt_document(&enc_assert)?;
+    }
 
     Ok(xml.to_string())
 }
