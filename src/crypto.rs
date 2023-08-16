@@ -421,21 +421,21 @@ fn remove_unverified_elements(node: &mut libxml::tree::Node) {
 pub(crate) fn decrypt_xml(xml_str: &str, cert: &[u8]) -> Result<String, Error> {
     use crate::xmlsec::XmlSecDecryptContext;
 
-    let mut xml = XmlParser::default().parse_string(xml_str)?;
-    let mut root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
+    let xml = XmlParser::default().parse_string(xml_str)?;
+    let root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
     let mut encrypted_data_nodes = find_encrypted_data(&root_elem);
 
-    for decrypted_node in encrypted_data_nodes.drain(..) {
+    for encrypted_node in encrypted_data_nodes.drain(..) {
         let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
         // load private key
 
         let key_data = cert;
-        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
+        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::Pem)?;
 
         dec_ctx.insert_key(key);
 
-        dec_ctx.decrypt_document(&decrypted_node)?;
+        dec_ctx.decrypt_document(&encrypted_node)?;
     }
 
     Ok(xml.to_string())

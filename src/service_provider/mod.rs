@@ -338,7 +338,7 @@ impl ServiceProvider {
         };
 
         let decrypted_xml = if let Some(key) = &self.key {
-            decrypt_xml(response_xml, &key.private_key_to_der().unwrap()).unwrap()
+            decrypt_xml(response_xml, &key.private_key_to_pem().unwrap()).unwrap()
         } else {
             reduced_xml
         };
