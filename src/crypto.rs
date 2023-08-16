@@ -422,15 +422,21 @@ pub(crate) fn decrypt_xml(xml_str: &str, cert: &[u8]) -> Result<String, Error> {
     use crate::xmlsec::XmlSecDecryptContext;
 
     let mut xml = XmlParser::default().parse_string(xml_str)?;
+    let mut root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
-    let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
-    // load private key
+    let mut encrypted_data_nodes = find_encrypted_data(&root_elem);
 
-    let key_data = cert;
-    let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
-    dec_ctx.insert_key(key);
+    for decrypted_node in encrypted_data_nodes.drain(..) {
+        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+        // load private key
 
-    dec_ctx.decrypt_document(&xml)?;
+        let key_data = cert;
+        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::CertDer)?;
+
+        dec_ctx.insert_key(key);
+
+        dec_ctx.decrypt_document(&decrypted_node)?;
+    }
 
     Ok(xml.to_string())
 }

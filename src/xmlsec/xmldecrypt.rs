@@ -62,18 +62,12 @@ impl XmlSecDecryptContext {
         }
     }
 
-    pub fn decrypt_document(&self, doc: &XmlDocument) -> XmlSecResult<()> {
+    pub fn decrypt_document(&self, doc: &libxml::tree::Node) -> XmlSecResult<()> {
         self.key_is_set()?;
 
-        let root = if let Some(root) = doc.get_root_element() {
-            root
-        } else {
-            return Err(XmlSecError::RootNotFound);
-        };
+        let node_ptr = doc.node_ptr() as *mut bindings::xmlNode;
 
-        let root_ptr = root.node_ptr() as *mut bindings::xmlNode;
-
-        let encnode = find_encNode(root_ptr)?;
+        let encnode = find_encNode(node_ptr)?;
         self.decrypt_node_raw(encnode)
     }
 }
