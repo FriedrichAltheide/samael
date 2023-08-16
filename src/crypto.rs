@@ -418,7 +418,7 @@ fn remove_unverified_elements(node: &mut libxml::tree::Node) {
 }
 
 #[cfg(feature = "xmlsec")]
-pub(crate) fn decrypt_xml(xml_str: &str, cert: &[u8]) -> Result<String, Error> {
+pub(crate) fn decrypt_xml(xml_str: &str, private_key_der: &[u8]) -> Result<String, Error> {
     use crate::xmlsec::XmlSecDecryptContext;
 
     let xml = XmlParser::default().parse_string(xml_str)?;
@@ -430,8 +430,7 @@ pub(crate) fn decrypt_xml(xml_str: &str, cert: &[u8]) -> Result<String, Error> {
         let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
         // load private key
 
-        let key_data = cert;
-        let key = XmlSecKey::from_memory(&key_data, XmlSecKeyFormat::Pem)?;
+        let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
 
         dec_ctx.insert_key(key);
 

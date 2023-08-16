@@ -2,7 +2,6 @@ use crate::crypto::{self, decrypt_xml};
 use crate::metadata::{Endpoint, IndexedEndpoint, KeyDescriptor, NameIdFormat, SpSsoDescriptor};
 use crate::schema::{Assertion, Response};
 use crate::traits::ToXml;
-use crate::xmlsec::XmlSecDecryptContext;
 use crate::{
     key_info::{KeyInfo, X509Data},
     metadata::{ContactPerson, EncryptionMethod, EntityDescriptor, HTTP_POST_BINDING},
@@ -338,7 +337,7 @@ impl ServiceProvider {
         };
 
         let decrypted_xml = if let Some(key) = &self.key {
-            decrypt_xml(response_xml, &key.private_key_to_pem().unwrap()).unwrap()
+            decrypt_xml(response_xml, &key.private_key_to_der().unwrap()).unwrap()
         } else {
             reduced_xml
         };

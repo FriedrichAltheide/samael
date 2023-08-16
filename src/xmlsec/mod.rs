@@ -17,15 +17,15 @@ pub use libxml::tree::node::Node as XmlNode;
 mod backend;
 mod error;
 mod keys;
+mod xmldecrypt;
 mod xmldsig;
 mod xmlsec_internal;
-mod xmldecrypt;
 
 // exports
 pub use self::error::XmlSecError;
 pub use self::error::XmlSecResult;
 pub use self::keys::XmlSecKey;
 pub use self::keys::XmlSecKeyFormat;
+pub use self::xmldecrypt::XmlSecDecryptContext;
 pub use self::xmldsig::XmlSecSignatureContext;
 pub use self::xmlsec_internal::XmlSecContext;
-pub use self::xmldecrypt::XmlSecDecryptContext;
