@@ -67,7 +67,7 @@ impl XmlSecDecryptContext {
 
         let node_ptr = doc.node_ptr() as *mut bindings::xmlNode;
 
-        let encnode = find_encNode(node_ptr)?;
+        let encnode = find_enc_node(node_ptr)?;
         self.decrypt_node_raw(encnode)
     }
 }
@@ -100,7 +100,7 @@ impl Drop for XmlSecDecryptContext {
     }
 }
 
-fn find_encNode(tree: *mut bindings::xmlNode) -> XmlSecResult<*mut bindings::xmlNode> {
+fn find_enc_node(tree: *mut bindings::xmlNode) -> XmlSecResult<*mut bindings::xmlNode> {
     let signode = unsafe {
         bindings::xmlSecFindNode(
             tree,

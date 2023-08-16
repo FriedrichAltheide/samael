@@ -424,18 +424,13 @@ pub(crate) fn decrypt_xml(xml_str: &str, private_key_der: &[u8]) -> Result<Strin
     let xml = XmlParser::default().parse_string(xml_str)?;
     let root_elem = xml.get_root_element().ok_or(Error::XmlMissingRootElement)?;
 
-    let mut encrypted_data_nodes = find_encrypted_data(&root_elem);
+    let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
+    // load private key
+    let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
 
-    for encrypted_node in encrypted_data_nodes.drain(..) {
-        let mut dec_ctx: XmlSecDecryptContext = XmlSecDecryptContext::new()?;
-        // load private key
+    dec_ctx.insert_key(key);
 
-        let key = XmlSecKey::from_memory(private_key_der, XmlSecKeyFormat::Der)?;
-
-        dec_ctx.insert_key(key);
-
-        dec_ctx.decrypt_document(&encrypted_node)?;
-    }
+    dec_ctx.decrypt_document(&root_elem)?;
 
     Ok(xml.to_string())
 }
