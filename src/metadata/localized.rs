@@ -13,6 +13,18 @@ pub struct LocalizedString {
 }
 
 impl LocalizedString {
+    pub fn new(value: String) -> Self {
+        Self::create(None, value)
+    }
+
+    pub fn new_with_lang(lang: String, value: String) -> Self {
+        Self::create(Some(lang), value)
+    }
+
+    fn create(lang: Option<String>, value: String) -> Self {
+        Self { lang, value }
+    }
+
     pub fn to_xml(&self, element_name: &str) -> Result<Event, Box<dyn std::error::Error>> {
         let mut write_buf = Vec::new();
         let mut writer = Writer::new(Cursor::new(&mut write_buf));

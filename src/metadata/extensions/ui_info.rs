@@ -15,10 +15,18 @@ pub struct Logo {
     #[serde(alias = "@height")]
     pub height: Option<usize>,
     #[serde(rename = "$value")]
-    pub value: String,
+    pub logo_url: String,
 }
 
 impl Logo {
+    pub fn new(logo_url: String, width: usize, height: usize) -> Self {
+        Self {
+            width: Some(width),
+            height: Some(height),
+            logo_url,
+        }
+    }
+
     pub fn to_xml(&self, element_name: &str) -> Result<Event, Box<dyn std::error::Error>> {
         let mut write_buf = Vec::new();
         let mut writer = Writer::new(Cursor::new(&mut write_buf));
@@ -30,7 +38,7 @@ impl Logo {
             root.push_attribute(("height", x.to_string().as_ref()));
         }
         writer.write_event(Event::Start(root))?;
-        writer.write_event(Event::Text(BytesText::from_escaped(&self.value)))?;
+        writer.write_event(Event::Text(BytesText::from_escaped(&self.logo_url)))?;
         writer.write_event(Event::End(BytesEnd::new(element_name)))?;
         Ok(Event::Text(BytesText::from_escaped(String::from_utf8(
             write_buf,
