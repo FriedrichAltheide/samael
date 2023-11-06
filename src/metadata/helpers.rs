@@ -15,7 +15,7 @@ pub fn write_plain_element<W: Write>(
 }
 
 #[allow(unused)]
-pub fn write_plain_attribute<W: Write>(
+pub fn write_plain_attribute(
     writer: &mut BytesStart,
     attribute: &str,
     text: &str,

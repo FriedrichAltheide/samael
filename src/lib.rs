@@ -15,7 +15,6 @@ mod xmlsec;
 
 mod traits;
 
-#[macro_use]
 extern crate derive_builder;
 
 #[cfg(feature = "xmlsec")]

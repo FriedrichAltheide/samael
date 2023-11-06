@@ -1,7 +1,5 @@
 use base64::{engine::general_purpose, Engine as _};
 use std::collections::HashMap;
-use std::convert::TryInto;
-use std::ffi::CString;
 use std::str::FromStr;
 use thiserror::Error;
 
@@ -9,6 +7,10 @@ use thiserror::Error;
 use crate::xmlsec::{self, XmlSecKey, XmlSecKeyFormat, XmlSecSignatureContext};
 #[cfg(feature = "xmlsec")]
 use libxml::parser::Parser as XmlParser;
+#[cfg(feature = "xmlsec")]
+use std::convert::TryInto;
+#[cfg(feature = "xmlsec")]
+use std::ffi::CString;
 
 #[cfg(feature = "xmlsec")]
 const XMLNS_XML_DSIG: &str = "http://www.w3.org/2000/09/xmldsig#";
@@ -223,7 +225,7 @@ fn get_elements_by_predicate<F: FnMut(&libxml::tree::Node) -> bool>(
 /// Searches for and returns the element with the given value of the `ID` attribute from the subtree
 /// rooted at the given node.
 #[cfg(feature = "xmlsec")]
-fn get_element_by_id(elem: &libxml::tree::Node, id: &str) -> Option<libxml::tree::Node> {
+fn _get_element_by_id(elem: &libxml::tree::Node, id: &str) -> Option<libxml::tree::Node> {
     let mut elems = get_elements_by_predicate(elem, |node| {
         node.get_attribute("ID")
             .map(|node_id| node_id == id)
