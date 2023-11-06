@@ -17,7 +17,7 @@ doctest = false
 crate-type = ["staticlib", "rlib"]
 
 [features]
-xmlsec = ["libc", "lazy_static", "libxml"]
+xmlsec = ["libc", "lazy_static", "libxml", "openssl-probe"]
 
 [build-dependencies]
 pkg-config = "^0.3.17"
@@ -26,7 +26,7 @@ bindgen = "^0.69.1"
 [dependencies]
 openssl = "^0.10.0"
 openssl-sys = "^0.9.0"
-openssl-probe = "^0.1.2"
+openssl-probe = { version = "^0.1.2", optional = true }
 url = "^2.1.1"
 quick-xml = { version = "^0.31.0", features = ["serialize"] }
 serde = { version = "^1.0.0", features = ["derive"] }
