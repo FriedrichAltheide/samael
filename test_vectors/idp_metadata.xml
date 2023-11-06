@@ -30,5 +30,5 @@
     <md:ContactPerson contactType="support">
         <md:GivenName>SAML Support</md:GivenName>
         <md:EmailAddress>mailto:support@example.org</md:EmailAddress>
-    </md:ContactPerson> 
+    </md:ContactPerson>
 </md:EntityDescriptor>

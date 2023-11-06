@@ -1,5 +1,7 @@
 use crate::crypto;
-use crate::metadata::{Endpoint, IndexedEndpoint, KeyDescriptor, NameIdFormat, SpSsoDescriptor};
+use crate::metadata::{
+    Endpoint, Extensions, IndexedEndpoint, KeyDescriptor, NameIdFormat, SpSsoDescriptor,
+};
 use crate::schema::{Assertion, Response};
 use crate::traits::ToXml;
 use crate::{
@@ -118,6 +120,7 @@ pub struct ServiceProvider {
     pub contact_person: Option<ContactPerson>,
     pub max_issue_delay: Duration,
     pub max_clock_skew: Duration,
+    pub extensions: Option<Extensions>,
 }
 
 impl Default for ServiceProvider {
@@ -138,6 +141,7 @@ impl Default for ServiceProvider {
             contact_person: None,
             max_issue_delay: Duration::seconds(90),
             max_clock_skew: Duration::seconds(180),
+            extensions: None,
         }
     }
 }
@@ -217,7 +221,7 @@ impl ServiceProvider {
                 location: self.acs_url.clone().ok_or(Error::MissingAcsUrl)?,
                 ..IndexedEndpoint::default()
             }],
-
+            extensions: self.extensions.clone(),
             ..SpSsoDescriptor::default()
         };
 

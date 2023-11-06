@@ -1,5 +1,5 @@
 use crate::attribute::AttributeValue;
-use crate::metadata::LocalizedName;
+use crate::metadata::LocalizedString;
 use quick_xml::events::{BytesEnd, BytesStart, BytesText, Event};
 use quick_xml::Writer;
 use serde::Deserialize;
@@ -14,9 +14,9 @@ pub struct AttributeConsumingService {
     #[serde(rename = "@isDefault")]
     pub is_default: Option<bool>,
     #[serde(rename = "ServiceName", default)]
-    pub service_names: Vec<LocalizedName>,
+    pub service_names: Vec<LocalizedString>,
     #[serde(rename = "ServiceDescription")]
-    pub service_descriptions: Option<Vec<LocalizedName>>,
+    pub service_descriptions: Option<Vec<LocalizedString>>,
     #[serde(rename = "RequestedAttribute", default)]
     pub request_attributes: Vec<RequestedAttribute>,
 }

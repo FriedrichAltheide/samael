@@ -1,6 +1,18 @@
 <?xml version="1.0"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2020-03-10T23:18:00Z" cacheDuration="PT604800S" entityID="https://sp.example.com">
   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:Extensions>
+      <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+        <mdui:DisplayName xml:lang="de">idp-example DE</mdui:DisplayName>
+        <mdui:DisplayName xml:lang="en">idp-example EN</mdui:DisplayName>
+        <mdui:Logo height="75" width="200">http://example.com/images/logo.png</mdui:Logo>
+        <mdui:InformationURL xml:lang="ja">http://example.com/</mdui:InformationURL>
+        <mdui:InformationURL xml:lang="en">http://example.com/</mdui:InformationURL>
+        <mdui:PrivacyStatementURL xml:lang="de">http://example.com/privacyDe/</mdui:PrivacyStatementURL>
+        <mdui:PrivacyStatementURL xml:lang="en">http://example.com/privacyEn/</mdui:PrivacyStatementURL>
+        <mdui:Keywords xml:lang="en">first:second:third</mdui:Keywords>
+      </mdui:UIInfo>
+    </md:Extensions>
     <md:KeyDescriptor use="signing">
       <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
         <ds:X509Data>

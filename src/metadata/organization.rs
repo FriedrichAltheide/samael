@@ -1,4 +1,4 @@
-use crate::metadata::{LocalizedName, LocalizedUri};
+use crate::metadata::LocalizedString;
 use quick_xml::events::{BytesEnd, BytesStart, BytesText, Event};
 use quick_xml::Writer;
 use serde::Deserialize;
@@ -9,11 +9,11 @@ const NAME: &str = "md:Organization";
 #[derive(Clone, Debug, Deserialize, Default, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Organization {
     #[serde(rename = "OrganizationName")]
-    pub organization_names: Option<Vec<LocalizedName>>,
+    pub organization_names: Option<Vec<LocalizedString>>,
     #[serde(rename = "OrganizationDisplayName")]
-    pub organization_display_names: Option<Vec<LocalizedName>>,
+    pub organization_display_names: Option<Vec<LocalizedString>>,
     #[serde(rename = "md:OrganizationURL")]
-    pub organization_urls: Option<Vec<LocalizedUri>>,
+    pub organization_urls: Option<Vec<LocalizedString>>,
 }
 
 impl TryFrom<&Organization> for Event<'_> {

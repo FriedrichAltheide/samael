@@ -9,6 +9,8 @@ use quick_xml::Writer;
 use serde::Deserialize;
 use std::io::Cursor;
 
+use super::Extensions;
+
 const NAME: &str = "md:SPSSODescriptor";
 
 #[derive(Clone, Debug, Deserialize, Default, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -23,6 +25,8 @@ pub struct SpSsoDescriptor {
     pub protocol_support_enumeration: Option<String>,
     #[serde(rename = "@errorURL")]
     pub error_url: Option<String>,
+    #[serde(rename = "Extensions")]
+    pub extensions: Option<Extensions>,
     #[serde(rename = "KeyDescriptor")]
     pub key_descriptors: Option<Vec<KeyDescriptor>>,
     #[serde(rename = "Organization")]
@@ -107,6 +111,11 @@ impl TryFrom<&SpSsoDescriptor> for Event<'_> {
         }
 
         writer.write_event(Event::Start(root))?;
+
+        if let Some(extensions) = &value.extensions {
+            let event: Event<'_> = extensions.try_into()?;
+            writer.write_event(event)?;
+        }
 
         if let Some(key_descriptors) = &value.key_descriptors {
             for descriptor in key_descriptors {

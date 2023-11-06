@@ -93,6 +93,7 @@ impl EntityDescriptor {
         ));
         root.push_attribute(("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#"));
         writer.write_event(Event::Start(root))?;
+
         for descriptor in self.sp_sso_descriptors.as_ref().unwrap_or(&vec![]) {
             let event: Event<'_> = descriptor.try_into()?;
             writer.write_event(event)?;
@@ -141,6 +142,22 @@ mod test {
             .parse()
             .expect("Failed to parse EntityDescriptor");
 
+        let ui_info = entity_descriptor
+            .sp_sso_descriptors
+            .as_ref()
+            .unwrap()
+            .first()
+            .unwrap()
+            .extensions
+            .as_ref()
+            .unwrap()
+            .ui_info
+            .as_ref()
+            .unwrap();
+        let display_name = ui_info.display_name.first().unwrap();
+        assert_eq!(display_name.lang, Some("de".to_string()));
+        assert_eq!(display_name.value, "idp-example DE");
+
         assert_eq!(reparsed_entity_descriptor, entity_descriptor);
     }
 
@@ -152,7 +169,7 @@ mod test {
         ));
         let entity_descriptor: EntityDescriptor = input_xml
             .parse()
-            .expect("Failed to parse sp_metadata.xml into an EntityDescriptor");
+            .expect("Failed to parse idp_metadata.xml into an EntityDescriptor");
         let output_xml = entity_descriptor
             .to_xml()
             .expect("Failed to convert EntityDescriptor to xml");
